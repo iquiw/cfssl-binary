@@ -18,7 +18,18 @@ install:
 build_script:
   - cd cfssl\cmd\cfssl
   - go build -v -o %APPVEYOR_BUILD_FOLDER%\cfssl.exe
+  - cd ..\cfssljson
+  - go build -v -o %APPVEYOR_BUILD_FOLDER%\cfssljson.exe
+
+after_build:
+  - "%APPVEYOR_BUILD_FOLDER%\\cfssl.exe version"
+  - 7z a %APPVEYOR_BUILD_FOLDER%\cfssl.7z %APPVEYOR_BUILD_FOLDER%\*.exe
+  - ps: |
+      $env:ARTIFACT_HASH = (Get-FileHash -Algorithm SHA256 $env:APPVEYOR_BUILD_FOLDER\cfssl.7z).Hash
+      $env:ARTIFACT_HASH | Out-File -Encoding utf8 -File $env:APPVEYOR_BUILD_FOLDER\cfssl.7z.sha256
 
 artifacts:
-  - path: cfssl.exe
-    name: CFSSL binary
+  - path: cfssl.7z
+    name: CFSSL binary archive
+  - path: cfssl.7z.sha256
+    name: SHA256 hash of CFSSL binary archive
