@@ -15,21 +15,43 @@ install:
   - go version
   - go env
 
+before_build:
+  - cd cfssl
+  - ps: $env:GITCOMMIT_FULL = git rev-parse HEAD
+
 build_script:
-  - cd cfssl\cmd\cfssl
+  - cd cmd\cfssl
   - go build -v -o %APPVEYOR_BUILD_FOLDER%\cfssl.exe
   - cd ..\cfssljson
   - go build -v -o %APPVEYOR_BUILD_FOLDER%\cfssljson.exe
 
 after_build:
   - "%APPVEYOR_BUILD_FOLDER%\\cfssl.exe version"
-  - 7z a %APPVEYOR_BUILD_FOLDER%\cfssl.7z %APPVEYOR_BUILD_FOLDER%\*.exe
+  - 7z a %APPVEYOR_BUILD_FOLDER%\cfssl-v%CFSSL_VERSION%.7z %APPVEYOR_BUILD_FOLDER%\*.exe
   - ps: |
-      $env:ARTIFACT_HASH = (Get-FileHash -Algorithm SHA256 $env:APPVEYOR_BUILD_FOLDER\cfssl.7z).Hash
-      $env:ARTIFACT_HASH | Out-File -Encoding utf8 -File $env:APPVEYOR_BUILD_FOLDER\cfssl.7z.sha256
+      $env:ARTIFACT_HASH = (Get-FileHash -Algorithm SHA256 $env:APPVEYOR_BUILD_FOLDER\cfssl-v$env:CFSSL_VERSION.7z).Hash
+      $env:ARTIFACT_HASH | Out-File -Encoding utf8 -File $env:APPVEYOR_BUILD_FOLDER\cfssl-v$env:CFSSL_VERSION.7z.sha256
 
 artifacts:
-  - path: cfssl.7z
+  - path: cfssl-v$(CFSSL_VERSION).7z
     name: CFSSL binary archive
-  - path: cfssl.7z.sha256
+  - path: cfssl-v$(CFSSL_VERSION).7z.sha256
     name: SHA256 hash of CFSSL binary archive
+
+deploy:
+  - provider: GitHub
+    release: $(appveyor_repo_tag_name)
+    description: |
+      CFSSL binary for Windows 64-bit.
+
+      Built https://github.com/cloudflare/cfssl at commit `$(GITCOMMIT_FULL)`.
+
+      | File                       | SHA-256 sum |
+      | ---                        | ---         |
+      | cfssl-v$(CFSSL_VERSION).7z | `$(ARTIFACT_HASH)` |
+    auth_token:
+      secure: Jfjhx7TC03brqWcw+uUMXHJxj445SVeEcmSnDUV10ggRuU6UlzQMLSVGIBRqWD8v
+    artifact: cfssl-v$(CFSSL_VERSION).7z,cfssl-v$(CFSSL_VERSION).7z.sha256
+    on:
+      branch: master
+      appveyor_repo_tag: true
