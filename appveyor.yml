@@ -30,7 +30,7 @@ after_build:
   - 7z a %APPVEYOR_BUILD_FOLDER%\cfssl-v%CFSSL_VERSION%.7z %APPVEYOR_BUILD_FOLDER%\*.exe
   - ps: |
       $env:ARTIFACT_HASH = (Get-FileHash -Algorithm SHA256 $env:APPVEYOR_BUILD_FOLDER\cfssl-v$env:CFSSL_VERSION.7z).Hash
-      $env:ARTIFACT_HASH | Out-File -Encoding utf8 -File $env:APPVEYOR_BUILD_FOLDER\cfssl-v$env:CFSSL_VERSION.7z.sha256
+      $env:ARTIFACT_HASH | Out-File -Encoding ascii -File $env:APPVEYOR_BUILD_FOLDER\cfssl-v$env:CFSSL_VERSION.7z.sha256
 
 artifacts:
   - path: cfssl-v$(CFSSL_VERSION).7z
