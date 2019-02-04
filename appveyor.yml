@@ -2,6 +2,9 @@ version: "{build}"
 
 clone_depth: 1
 
+cache:
+  - '%LocalAppData%\go-build'
+
 environment:
   CFSSL_VERSION: 1.3.2
   GOPATH: C:\gopath
