@@ -6,7 +6,7 @@ cache:
   - '%LocalAppData%\go-build'
 
 environment:
-  CFSSL_VERSION: 1.3.2
+  CFSSL_VERSION: 1.3.3
   GOPATH: C:\gopath
   GOROOT: C:\go110
 
