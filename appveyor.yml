@@ -6,7 +6,7 @@ cache:
   - '%LocalAppData%\go-build'
 
 environment:
-  CFSSL_VERSION: 1.3.4
+  CFSSL_VERSION: v1.4.0-rc1
   GOPATH: C:\gopath
   GOROOT: C:\go112
 
@@ -30,13 +30,13 @@ build_script:
 
 after_build:
   - "%APPVEYOR_BUILD_FOLDER%\\cfssl.exe version"
-  - 7z a %APPVEYOR_BUILD_FOLDER%\cfssl-v%CFSSL_VERSION%.7z %APPVEYOR_BUILD_FOLDER%\*.exe
+  - 7z a %APPVEYOR_BUILD_FOLDER%\cfssl-%CFSSL_VERSION%.7z %APPVEYOR_BUILD_FOLDER%\*.exe
   - ps: |
-      $env:ARTIFACT_HASH = (Get-FileHash -Algorithm SHA256 $env:APPVEYOR_BUILD_FOLDER\cfssl-v$env:CFSSL_VERSION.7z).Hash
-      "$env:ARTIFACT_HASH  cfssl-v$env:CFSSL_VERSION.7z" | Out-File -Encoding ascii -File $env:APPVEYOR_BUILD_FOLDER\sha256sum.txt
+      $env:ARTIFACT_HASH = (Get-FileHash -Algorithm SHA256 $env:APPVEYOR_BUILD_FOLDER\cfssl-$env:CFSSL_VERSION.7z).Hash
+      "$env:ARTIFACT_HASH  cfssl-$env:CFSSL_VERSION.7z" | Out-File -Encoding ascii -File $env:APPVEYOR_BUILD_FOLDER\sha256sum.txt
 
 artifacts:
-  - path: cfssl-v$(CFSSL_VERSION).7z
+  - path: cfssl-$(CFSSL_VERSION).7z
     name: CFSSL binary archive
   - path: sha256sum.txt
     name: SHA256 hash of CFSSL binary archive
@@ -51,10 +51,10 @@ deploy:
 
       | File                       | SHA-256 sum |
       | ---                        | ---         |
-      | cfssl-v$(CFSSL_VERSION).7z | `$(ARTIFACT_HASH)` |
+      | cfssl-$(CFSSL_VERSION).7z  | `$(ARTIFACT_HASH)` |
     auth_token:
       secure: Jfjhx7TC03brqWcw+uUMXHJxj445SVeEcmSnDUV10ggRuU6UlzQMLSVGIBRqWD8v
-    artifact: cfssl-v$(CFSSL_VERSION).7z,sha256sum.txt
+    artifact: cfssl-$(CFSSL_VERSION).7z,sha256sum.txt
     on:
       branch: master
       appveyor_repo_tag: true
