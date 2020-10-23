@@ -8,7 +8,7 @@ cache:
 environment:
   CFSSL_VERSION: v1.5.0
   GOPATH: C:\gopath
-  GOROOT: C:\go112
+  GOROOT: C:\go113
 
 install:
   - mkdir %GOPATH%\src\github.com\cloudflare
